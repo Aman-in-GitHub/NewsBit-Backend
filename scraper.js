@@ -1,6 +1,7 @@
 import { CheerioCrawler } from 'crawlee';
 import { supabase } from './db.js';
 import createEmail from './utils/createEmail.js';
+import fs from 'fs';
 
 const DATA = [];
 
@@ -147,5 +148,16 @@ export async function main() {
     console.log('News has been scraped successfully.');
   } catch (error) {
     console.log('Error Scraping The News:', error);
+  } finally {
+    try {
+      fs.rm('./storage', { recursive: true });
+      console.log('Storage folder deleted.');
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        console.log('Storage folder does not exist.');
+      } else {
+        console.log('Error Scraping The News:', error);
+      }
+    }
   }
 }
