@@ -149,15 +149,16 @@ export async function main() {
   } catch (error) {
     console.log('Error Scraping The News:', error);
   } finally {
-    try {
-      fs.rm('./storage', { recursive: true });
-      console.log('Storage folder deleted.');
-    } catch (error) {
-      if (error.code === 'ENOENT') {
-        console.log('Storage folder does not exist.');
-      } else {
-        console.log('Error Scraping The News:', error);
-      }
+    if (fs.existsSync('./storage')) {
+      fs.rm('./storage', { recursive: true, force: true }, (err) => {
+        if (err) {
+          console.error('Error deleting directory:', err);
+        } else {
+          console.log('Directory and its contents deleted.');
+        }
+      });
+    } else {
+      console.log('Storage directory does not exist.');
     }
   }
 }
