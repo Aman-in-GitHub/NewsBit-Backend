@@ -34,7 +34,8 @@ async function scrapeNews() {
     minConcurrency: 1,
     maxRequestRetries: 10,
     maxConcurrency: 1,
-    requestHandlerTimeoutSecs: 60
+    requestHandlerTimeoutSecs: 60,
+    useSessionPool: false
   });
 
   crawler.router.addHandler('START', async ({ request, $ }) => {
