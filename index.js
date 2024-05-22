@@ -4,8 +4,8 @@ import cors from 'cors';
 import fs from 'fs';
 import { supabase } from './db.js';
 import { downloadPDF } from './utils/pdfDownload.js';
-import { runAt3AM } from './utils/scheduler.js';
 import { sendWelcomeEmail } from './utils/sendWelcomeEmail.js';
+import { scheduler } from './scraper.js';
 
 const PORT = process.env.PORT || 4444;
 
@@ -22,7 +22,7 @@ async function startServer() {
       console.log(`Server is running on port ${PORT}`);
     });
 
-    runAt3AM();
+    scheduler();
   } catch (error) {
     console.error('Server Startup Failed:', error);
   }
