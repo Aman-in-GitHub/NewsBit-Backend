@@ -14,7 +14,7 @@ async function scrapeNews() {
   const DATA = [];
   const startUrls = [];
   let pagesSetToScrape = 0;
-  const totalPagesToScrape = 5;
+  const totalPagesToScrape = 100;
   const urls = ['https://iost.tu.edu.np/notices'];
 
   for (const url of urls) {
