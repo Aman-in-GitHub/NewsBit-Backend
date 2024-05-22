@@ -1,24 +1,42 @@
-import { main } from "../scraper.js";
+// import { main } from "../scraper.js";
+
+// export function runAt3AM() {
+//   const now = new Date();
+
+//   const timeUntil3AM =
+//     new Date(now.getFullYear(), now.getMonth(), now.getDate(), 3, 0, 0, 0) -
+//     now;
+
+//   const delay =
+//     timeUntil3AM < 0 ? timeUntil3AM + 24 * 60 * 60 * 1000 : timeUntil3AM;
+
+//   setTimeout(async () => {
+//     try {
+//       console.log("Starting daily scraping");
+//       await main();
+//       console.log("Daily news scraping completed");
+//     } catch (error) {
+//       console.error("Error occurred in scraper:", error.message);
+//     } finally {
+//       runAt3AM();
+//     }
+//   }, delay);
+// }
+
+import { main } from '../scraper.js';
 
 export function runAt3AM() {
-  const now = new Date();
+  const interval = 4 * 60 * 1000;
 
-  const timeUntil3AM =
-    new Date(now.getFullYear(), now.getMonth(), now.getDate(), 3, 0, 0, 0) -
-    now;
-
-  const delay =
-    timeUntil3AM < 0 ? timeUntil3AM + 24 * 60 * 60 * 1000 : timeUntil3AM;
-
-  setTimeout(async () => {
+  setInterval(async () => {
     try {
-      console.log("Starting daily scraping");
+      console.log('Starting periodic scraping');
       await main();
-      console.log("Daily news scraping completed");
+      console.log('Periodic news scraping completed');
     } catch (error) {
-      console.error("Error occurred in scraper:", error.message);
-    } finally {
-      runAt3AM();
+      console.error('Error occurred in scraper:', error.message);
     }
-  }, delay);
+  }, interval);
 }
+
+runAt3AM();
