@@ -7,20 +7,19 @@ const DATA = [];
 
 function dateToSeconds(dateString) {
   const formattedDateString = dateString.replace(/(\d+)(st|nd|rd|th)/, '$1');
-
   const date = new Date(formattedDateString);
-
   const seconds = date.getTime() / 1000;
-
   return seconds;
+}
+
+async function ensureDirectoryExists(directory) {
+  return fs.promises.mkdir(directory, { recursive: true });
 }
 
 async function scrapeNews() {
   let startUrls = [];
-
   let pagesSetToScrape = 0;
   let totalPagesToScrape = 100;
-
   const urls = ['https://iost.tu.edu.np/notices'];
 
   for (const url of urls) {
@@ -29,6 +28,10 @@ async function scrapeNews() {
       label: 'START'
     });
   }
+
+  await ensureDirectoryExists(
+    '/opt/render/project/src/storage/request_queues/default/'
+  );
 
   const crawler = new CheerioCrawler({
     minConcurrency: 1,
@@ -150,8 +153,9 @@ export async function main() {
   } catch (error) {
     console.log('Error Scraping The News:', error);
   } finally {
-    if (fs.existsSync('./storage')) {
-      fs.rm('./storage', { recursive: true, force: true }, (err) => {
+    const storagePath = './storage';
+    if (fs.existsSync(storagePath)) {
+      fs.rm(storagePath, { recursive: true, force: true }, (err) => {
         if (err) {
           console.error('Error deleting directory:', err);
         } else {
