@@ -1,14 +1,14 @@
-import findEmails from './findEmails.js';
-import { secondsToDate } from './secondsToDate.js';
-import sendEmail from './sendEmail.js';
+import findEmails from "./findEmails.js";
+import { secondsToDate } from "./secondsToDate.js";
+import sendEmail from "./sendEmail.js";
 
 async function createEmail(data) {
-  console.log('Creating email');
+  console.log("Creating email");
 
   const signedUpEmails = await findEmails(data);
 
   if (!signedUpEmails) {
-    console.log('No email found for this news.');
+    console.log("No email found for this news.");
     return;
   }
 
@@ -16,11 +16,11 @@ async function createEmail(data) {
     const title = data.title;
     const date = secondsToDate(data.date);
     let pdfUrl = data.pdfUrl;
-    pdfUrl = pdfUrl.replace(/ /g, '%20');
+    pdfUrl = pdfUrl.replace(/ /g, "%20");
 
     console.log(data);
 
-    console.log('PDF URL:', pdfUrl);
+    console.log("PDF URL:", pdfUrl);
     const url = data.url;
 
     const branch = signedUpEmail.branch;
@@ -491,9 +491,9 @@ async function createEmail(data) {
     try {
       await sendEmail(signedUpEmail.email, title, html);
 
-      console.log('Email sent to', signedUpEmail.email);
+      console.log("Email sent to", signedUpEmail.email);
     } catch (error) {
-      console.log('Error sending email:', error);
+      console.log("Error sending email:", error);
     }
   }
 }
