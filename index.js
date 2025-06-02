@@ -130,11 +130,14 @@ app.post("/api/saveEmail", async (req, res) => {
 const refreshServer = async () => {
   try {
     const url = process.env.SERVER_URL;
+    const url2 = process.env.SERVER_URL_2;
     const response = await fetch(`${url}/api/refresh`);
+    const response2 = await fetch(url2);
     const data = await response.json();
-    console.log("Server refreshed:", data);
+    const data2 = await response2.json();
+    console.log("Server/s refreshed:", data, data2);
   } catch (error) {
-    console.error("Error refreshing server:", error);
+    console.error("Error refreshing server/s:", error);
   }
 };
 
