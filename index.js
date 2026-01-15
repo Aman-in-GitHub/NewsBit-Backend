@@ -90,10 +90,10 @@ app.post("/api/download", async (req, res) => {
 
 app.get("/api/refresh", async (req, res) => {
   try {
-    res.status(200).json({ message: "Server refreshed" });
+    res.status(200).json({ message: "Server/s refreshed" });
   } catch (error) {
-    console.error("Error refreshing server:", error);
-    res.status(500).json({ message: "Failed to refresh server" });
+    console.error("Error refreshing server/s:", error);
+    res.status(500).json({ message: "Failed to refresh server/s" });
   }
 });
 
@@ -157,9 +157,9 @@ const refreshDatabase = async () => {
     if (error || vibesError || kamError) {
       throw error || vibesError || kamError;
     }
-    console.log("Database refreshed:", data, vibesData, kamData);
+    console.log("Database/s refreshed:", data, vibesData, kamData);
   } catch (error) {
-    console.error("Error refreshing database:", error);
+    console.error("Error refreshing database/s:", error);
   }
 };
 
