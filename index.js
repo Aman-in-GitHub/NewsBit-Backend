@@ -34,18 +34,18 @@ app.on("error", (error) => {
   console.log("Server Connection Error:", error);
 });
 
-app.get("/", (req, res) => {
+app.get("/", (_, res) => {
   res.status(200).json({
     message: "Welcome to NewsBit",
   });
 });
 
-app.get("/api/getNews", async (req, res) => {
+app.get("/api/getNews", async (_, res) => {
   try {
     const { data, error } = await supabase
       .from("news")
       .select()
-      .order("index", { ascending: true });
+      .order("id", { ascending: false });
 
     if (error) {
       throw new Error(error.message);
@@ -54,7 +54,7 @@ app.get("/api/getNews", async (req, res) => {
     res.status(200).json({
       data,
     });
-  } catch (error) {
+  } catch {
     res.status(500).json({
       message: "Internal Server Error",
     });
@@ -68,6 +68,7 @@ app.post("/api/download", async (req, res) => {
     const fileBuffer = fs.readFileSync(filePath);
 
     res.setHeader("Content-Type", "application/pdf");
+
     res.setHeader(
       "Content-Disposition",
       `attachment; filename="${downloadName}.pdf"`,
@@ -88,12 +89,12 @@ app.post("/api/download", async (req, res) => {
   }
 });
 
-app.get("/api/refresh", async (req, res) => {
+app.get("/api/refresh", async (_, res) => {
   try {
-    res.status(200).json({ message: "Server/s refreshed" });
+    res.status(200).json({ message: "Server refreshed" });
   } catch (error) {
-    console.error("Error refreshing server/s:", error);
-    res.status(500).json({ message: "Failed to refresh server/s" });
+    console.error("Error refreshing server:", error);
+    res.status(500).json({ message: "Failed to refresh server" });
   }
 });
 
@@ -122,7 +123,7 @@ app.post("/api/saveEmail", async (req, res) => {
     }
 
     res.status(200).json({ message: "Email saved successfully" });
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: "Server Error while saving email" });
   }
 });
@@ -130,38 +131,31 @@ app.post("/api/saveEmail", async (req, res) => {
 const refreshServer = async () => {
   try {
     const url = process.env.SERVER_URL;
-    const url2 = process.env.SERVER_URL_2;
     const response = await fetch(`${url}/api/refresh`);
-    const response2 = await fetch(url2);
     const data = await response.json();
-    const data2 = await response2.json();
-    console.log("Server/s refreshed:", data, data2);
+    console.log("Server refreshed:", data);
   } catch (error) {
-    console.error("Error refreshing server/s:", error);
+    console.error("Error refreshing server:", error);
   }
 };
 
 const interval = 12 * 60 * 1000;
+
 setInterval(refreshServer, interval);
 
 const refreshDatabase = async () => {
   try {
     const { data, error } = await supabase.from("refresh").select();
-    const { data: vibesData, error: vibesError } = await vibes_supabase
-      .from("raw_posts")
-      .select();
-    const { data: kamData, error: kamError } = await kam_supabase
-      .from("letsworktogethermails")
-      .select();
 
-    if (error || vibesError || kamError) {
-      throw error || vibesError || kamError;
+    if (error) {
+      throw error;
     }
-    console.log("Database/s refreshed:", data, vibesData, kamData);
+    console.log("Database refreshed:", data);
   } catch (error) {
-    console.error("Error refreshing database/s:", error);
+    console.error("Error refreshing database:", error);
   }
 };
 
 const databaseInterval = 23 * 60 * 60 * 1000;
+
 setInterval(refreshDatabase, databaseInterval);

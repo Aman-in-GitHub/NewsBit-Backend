@@ -35,6 +35,7 @@ async function scrapeNews() {
         console.log(`Processing Listing URL: ${request.url}`);
 
         const urls = $(".recent-post-wrapper a");
+
         for (let i = 0; i < urls.length; i++) {
           if (pagesSetToScrape >= totalPagesToScrape) {
             console.log("Completed Listing URLs");
@@ -50,6 +51,7 @@ async function scrapeNews() {
         }
 
         const next = $('a.page-link[rel="next"]');
+
         if (next.length > 0) {
           const nextUrl = new URL(next.attr("href"), request.url).href;
           console.log("Next page " + nextUrl);
@@ -60,12 +62,12 @@ async function scrapeNews() {
         }
       } else if (request.userData.label === "DETAIL") {
         console.log("Scraping Detail URL: " + request.url);
+
         const title = $(".detail-page-inner h4.title").text();
         const pdfUrl = $("td.text-center a[download]").attr("href");
-        const date = $("span#nep_date").text();
+        const date = $("span.nep_date").first().text();
 
         const results = {
-          index: DATA.length + 1,
           title,
           date: dateToSeconds(date),
           pdfUrl,
@@ -73,6 +75,7 @@ async function scrapeNews() {
         };
 
         console.log("RESULTS", results.title);
+
         DATA.push(results);
       }
     },
@@ -96,36 +99,54 @@ export async function main() {
       return;
     }
 
-    if (data.length > 0) {
-      const previousFirstNews = data.find((n) => n.index === 1);
-      const currentFirstNews = DATA.find((n) => n.index === 1);
-      if (previousFirstNews.url === currentFirstNews.url) {
-        console.log("No new news found");
-        return;
+    const existingUrls = new Set(data.map((n) => n.url));
+
+    const newItems = DATA.filter((news) => !existingUrls.has(news.url));
+
+    if (newItems.length === 0) {
+      console.log("No new news found");
+      return;
+    }
+
+    await Promise.all(
+      DATA.map(async (news) => {
+        const { error } = await supabase.from("news").upsert(
+          {
+            title: news.title,
+            date: news.date,
+            pdfUrl: news.pdfUrl,
+            url: news.url,
+          },
+          { onConflict: "url" },
+        );
+        if (error) console.log("Upsert error:", error.message);
+      }),
+    );
+
+    const { data: limitRow } = await supabase
+      .from("news")
+      .select("id")
+      .order("id", { ascending: false })
+      .range(99, 99)
+      .single();
+
+    if (limitRow) {
+      const { error: deleteError } = await supabase
+        .from("news")
+        .delete()
+        .lt("id", limitRow.id);
+
+      if (deleteError) {
+        console.log("Cleanup error:", deleteError.message);
       }
     }
 
-    DATA.forEach(async (news) => {
-      const { error } = await supabase.from("news").upsert({
-        index: news.index,
-        title: news.title,
-        date: news.date,
-        pdfUrl: news.pdfUrl,
-        url: news.url,
-      });
-      if (error) {
-        console.log("Error occurred during upsert:", error.message);
-      }
-    });
-
-    DATA.forEach(async (news) => {
-      const found = data.find((n) => n.url === news.url);
-
-      if (!found) {
+    await Promise.all(
+      newItems.map(async (news) => {
         console.log("New news found:", news.url);
         await createEmail(news);
-      }
-    });
+      }),
+    );
 
     console.log("News has been scraped successfully.");
   } catch (error) {
@@ -133,14 +154,9 @@ export async function main() {
   } finally {
     if (fs.existsSync("./storage")) {
       fs.rm("./storage", { recursive: true, force: true }, (err) => {
-        if (err) {
-          console.error("Error deleting directory:", err);
-        } else {
-          console.log("Directory and its contents deleted.");
-        }
+        if (err) console.error("Error deleting directory:", err);
+        else console.log("Directory deleted.");
       });
-    } else {
-      console.log("Storage directory does not exist.");
     }
   }
 }
