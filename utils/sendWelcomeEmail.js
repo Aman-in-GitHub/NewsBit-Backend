@@ -3,6 +3,12 @@ import sendEmail from "./sendEmail.js";
 
 export const sendWelcomeEmail = async (email, branch, semester) => {
   try {
+    await sendEmail(
+      email,
+      "Welcome to NewsBit",
+      welcomeHtml(email, branch, semester),
+    );
+
     const { error } = await supabase
       .from("emails")
       .update({ isWelcomed: true })
@@ -12,12 +18,6 @@ export const sendWelcomeEmail = async (email, branch, semester) => {
       console.log("Error sending welcome email:", error.message);
       return;
     }
-
-    await sendEmail(
-      email,
-      "Welcome to NewsBit",
-      welcomeHtml(email, branch, semester),
-    );
 
     console.log("Welcome email sent successfully");
   } catch (error) {
@@ -121,7 +121,7 @@ const welcomeHtml = (mail, branch, semester) => {
           </td>
         </tr>
       </table>
-      
+
       <table
          align="center" border="0" cellpadding="0" cellspacing="0" style="width:600px;" width="600"
       >
@@ -148,9 +148,9 @@ const welcomeHtml = (mail, branch, semester) => {
             <td style="border: none;solid 1px: ;border-top: 0px;direction: ltr;font-size: 0px;padding: 20px 0;text-align: center;vertical-align: top;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;">
               <!--[if mso | IE]>
                   <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                
+
         <tr>
-      
+
             <td
                style="vertical-align:bottom;width:600px;"
             >
@@ -345,9 +345,9 @@ const welcomeHtml = (mail, branch, semester) => {
 
               <!--[if mso | IE]>
             </td>
-          
+
         </tr>
-      
+
                   </table>
                 <![endif]-->
             </td>
@@ -360,7 +360,7 @@ const welcomeHtml = (mail, branch, semester) => {
           </td>
         </tr>
       </table>
-      
+
       <table
          align="center" border="0" cellpadding="0" cellspacing="0" style="width:600px;" width="600"
       >

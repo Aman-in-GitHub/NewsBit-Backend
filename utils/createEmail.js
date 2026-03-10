@@ -18,11 +18,7 @@ async function createEmail(data) {
     let pdfUrl = data.pdfUrl;
     pdfUrl = pdfUrl.replace(/ /g, "%20");
 
-    console.log(data);
-
-    console.log("PDF URL:", pdfUrl);
     const url = data.url;
-
     const branch = signedUpEmail.branch;
     const semester = signedUpEmail.semester;
 
@@ -137,7 +133,7 @@ async function createEmail(data) {
           </td>
         </tr>
       </table>
-      
+
       <table
          align="center" border="0" cellpadding="0" cellspacing="0" style="width:600px;" width="600"
       >
@@ -175,9 +171,9 @@ async function createEmail(data) {
               >
                 <!--[if mso | IE]>
                   <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                
+
         <tr>
-      
+
             <td
                style="vertical-align:bottom;width:600px;"
             >
@@ -337,11 +333,11 @@ async function createEmail(data) {
                           Date: ${date}
                           <br />
                           PDF:
-                          <a href=${pdfUrl} target="_blank" style="color: #ffa31a"
+                          <a href="${pdfUrl}" target="_blank" style="color: #ffa31a"
                             >${pdfUrl}</a>
                           <br />
                           Source:
-                          <a href=${url} target="_blank" style="color: #ffa31a"
+                          <a href="${url}" target="_blank" style="color: #ffa31a"
                             >TU IOST</a
                           >
                         </div>
@@ -453,9 +449,9 @@ async function createEmail(data) {
 
                 <!--[if mso | IE]>
             </td>
-          
+
         </tr>
-      
+
                   </table>
                 <![endif]-->
               </td>
@@ -468,7 +464,7 @@ async function createEmail(data) {
           </td>
         </tr>
       </table>
-      
+
       <table
          align="center" border="0" cellpadding="0" cellspacing="0" style="width:600px;" width="600"
       >
@@ -490,6 +486,11 @@ async function createEmail(data) {
 
     try {
       await sendEmail(signedUpEmail.email, title, html);
+
+      await supabase.from("sent_notices").insert({
+        email: signedUpEmail.email,
+        url: data.url,
+      });
 
       console.log("Email sent to", signedUpEmail.email);
     } catch (error) {

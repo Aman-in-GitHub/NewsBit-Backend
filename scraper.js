@@ -86,7 +86,7 @@ async function scrapeNews() {
           url: request.url,
         };
 
-        console.log("RESULTS", results.title);
+        console.log("Scraped Notice:", results.title);
 
         DATA.push(results);
       }
@@ -120,45 +120,44 @@ export async function main() {
       return;
     }
 
-    await Promise.all(
-      DATA.map(async (news) => {
-        const { error } = await supabase.from("news").upsert(
-          {
-            title: news.title,
-            date: news.date,
-            pdfUrl: news.pdfUrl,
-            url: news.url,
-          },
-          { onConflict: "url" },
-        );
-        if (error) console.log("Upsert error:", error.message);
-      }),
-    );
+    for (const news of newItems) {
+      const { error } = await supabase.from("news").upsert(
+        {
+          title: news.title,
+          date: news.date,
+          pdfUrl: news.pdfUrl,
+          url: news.url,
+        },
+        { onConflict: "url" },
+      );
+
+      if (error) {
+        console.log("Upsert error:", error.message);
+      }
+    }
+
+    for (const news of newItems) {
+      console.log("New news found:", news.url);
+      await createEmail(news);
+    }
 
     const { data: limitRow } = await supabase
       .from("news")
       .select("id")
       .order("id", { ascending: false })
-      .range(99, 99)
+      .range(100, 100)
       .single();
 
     if (limitRow) {
       const { error: deleteError } = await supabase
         .from("news")
         .delete()
-        .lt("id", limitRow.id);
+        .lte("id", limitRow.id);
 
       if (deleteError) {
         console.log("Cleanup error:", deleteError.message);
       }
     }
-
-    await Promise.all(
-      newItems.map(async (news) => {
-        console.log("New news found:", news.url);
-        await createEmail(news);
-      }),
-    );
 
     console.log("News has been scraped successfully.");
   } catch (error) {

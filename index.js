@@ -10,7 +10,6 @@ import { scheduler } from "./scraper.js";
 const PORT = process.env.PORT || 4444;
 
 const app = express();
-app.use(express.json());
 
 app.use(cors());
 
@@ -18,7 +17,7 @@ app.use(express.json());
 
 async function startServer() {
   try {
-    app.listen(process.env.PORT, () => {
+    app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
 
@@ -101,19 +100,13 @@ app.get("/api/refresh", async (_, res) => {
 app.post("/api/saveEmail", async (req, res) => {
   try {
     const { email, branch, semester } = req.body;
-
     const { data, error } = await supabase
       .from("emails")
-      .upsert({
-        email,
-        branch,
-        semester,
-      })
+      .upsert({ email, branch, semester }, { onConflict: "email" })
       .select();
 
     if (error) {
       console.log(error);
-
       res.status(500).json({ message: "Error saving email to database" });
       return;
     }
