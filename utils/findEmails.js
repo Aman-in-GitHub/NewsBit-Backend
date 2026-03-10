@@ -9,16 +9,30 @@ async function findEmails(news) {
   const verifiedEmail = [];
 
   emails.forEach((user) => {
-    const branchMatch = new RegExp(`\\b${user.branch}\\b`, "i").test(
-      news.title,
-    );
-    const semesterMatch = new RegExp(`\\b${user.semester}\\b`, "i").test(
-      news.title,
-    );
     const alreadySent = sentSet.has(`${user.email}|${news.url}`);
 
-    if (branchMatch && semesterMatch && !alreadySent) {
-      verifiedEmail.push(user);
+    if (alreadySent) {
+      return;
+    }
+
+    const matchedSelection = user.selections.find((selection) => {
+      const branchMatch = new RegExp(`\\b${selection.branch}\\b`, "i").test(
+        news.title,
+      );
+
+      const semesterMatch = new RegExp(`\\b${selection.semester}\\b`, "i").test(
+        news.title,
+      );
+
+      return branchMatch && semesterMatch;
+    });
+
+    if (matchedSelection) {
+      verifiedEmail.push({
+        ...user,
+        branch: matchedSelection.branch,
+        semester: matchedSelection.semester,
+      });
     }
   });
 

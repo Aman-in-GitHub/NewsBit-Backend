@@ -88,36 +88,43 @@ app.post("/api/download", async (req, res) => {
   }
 });
 
+app.post("/api/saveEmail", async (req, res) => {
+  try {
+    const { email, selections } = req.body;
+
+    const { data: emailData, error } = await supabase
+      .from("emails")
+      .upsert({ email, selections }, { onConflict: "email" })
+      .select()
+      .single();
+
+    if (error) {
+      console.error(error);
+      res.status(500).json({ message: "Error saving email to database" });
+      return;
+    }
+
+    if (emailData.isWelcomed === false) {
+      await sendWelcomeEmail(email, selections);
+
+      await supabase
+        .from("emails")
+        .update({ isWelcomed: true })
+        .eq("email", email);
+    }
+
+    res.status(200).json({ message: "Email saved successfully" });
+  } catch {
+    res.status(500).json({ message: "Server Error while saving email" });
+  }
+});
+
 app.get("/api/refresh", async (_, res) => {
   try {
     res.status(200).json({ message: "Server refreshed" });
   } catch (error) {
     console.error("Error refreshing server:", error);
     res.status(500).json({ message: "Failed to refresh server" });
-  }
-});
-
-app.post("/api/saveEmail", async (req, res) => {
-  try {
-    const { email, branch, semester } = req.body;
-    const { data, error } = await supabase
-      .from("emails")
-      .upsert({ email, branch, semester }, { onConflict: "email" })
-      .select();
-
-    if (error) {
-      console.log(error);
-      res.status(500).json({ message: "Error saving email to database" });
-      return;
-    }
-
-    if (data[0].isWelcomed === false) {
-      await sendWelcomeEmail(email, branch, semester);
-    }
-
-    res.status(200).json({ message: "Email saved successfully" });
-  } catch {
-    res.status(500).json({ message: "Server Error while saving email" });
   }
 });
 

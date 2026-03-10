@@ -494,7 +494,7 @@ async function createEmail(data) {
 
       console.log("Email sent to", signedUpEmail.email);
     } catch (error) {
-      console.log("Error sending email:", error);
+      console.error("Error sending email:", error);
     }
   }
 }

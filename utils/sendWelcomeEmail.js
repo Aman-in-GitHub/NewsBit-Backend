@@ -1,31 +1,27 @@
-import { supabase } from "../db.js";
 import sendEmail from "./sendEmail.js";
 
-export const sendWelcomeEmail = async (email, branch, semester) => {
+export async function sendWelcomeEmail(email, selections) {
   try {
     await sendEmail(
       email,
       "Welcome to NewsBit",
-      welcomeHtml(email, branch, semester),
+      welcomeHtml(email, selections),
     );
-
-    const { error } = await supabase
-      .from("emails")
-      .update({ isWelcomed: true })
-      .eq("email", email);
-
-    if (error) {
-      console.log("Error sending welcome email:", error.message);
-      return;
-    }
 
     console.log("Welcome email sent successfully");
   } catch (error) {
     console.error("Error sending welcome email:", error);
   }
-};
+}
 
-const welcomeHtml = (mail, branch, semester) => {
+function welcomeHtml(mail, selections) {
+  const selectionList = selections
+    .map(
+      (s) =>
+        `<li style="margin-bottom:4px;">${s.branch} — ${s.semester} Semester</li>`,
+    )
+    .join("");
+
   return `
   <!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -265,7 +261,9 @@ const welcomeHtml = (mail, branch, semester) => {
                             text-align: left;
                             color: #1b1b1b;text-align:center;
                           ">
-                        We will alert you whenever we get a new notice for ${branch} ${semester} semester. You won't be spammed by unnecessary messages. So whenever you get an email from us you can be assured that it's important to you.
+                        We will alert you whenever we get a new notice for:
+                        <ul style="margin-top:10px;padding-left:20px;">${selectionList}</ul>
+                        You won't be spammed by unnecessary messages. So whenever you get an email from us you can be assured that it's important to you.
                       </div>
                     </td>
                   </tr>
@@ -380,4 +378,4 @@ const welcomeHtml = (mail, branch, semester) => {
 
 </html>
   `;
-};
+}

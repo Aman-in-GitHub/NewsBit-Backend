@@ -107,7 +107,7 @@ export async function main() {
     const { data, error } = await supabase.from("news").select();
 
     if (error) {
-      console.log("Error occurred during fetching news:", error.message);
+      console.error("Error occurred during fetching news:", error.message);
       return;
     }
 
@@ -132,7 +132,7 @@ export async function main() {
       );
 
       if (error) {
-        console.log("Upsert error:", error.message);
+        console.error("Upsert error:", error.message);
       }
     }
 
@@ -161,7 +161,7 @@ export async function main() {
 
     console.log("News has been scraped successfully.");
   } catch (error) {
-    console.log("Error Scraping The News:", error);
+    console.error("Error Scraping The News:", error);
   } finally {
     if (fs.existsSync("./storage")) {
       fs.rm("./storage", { recursive: true, force: true }, (err) => {
@@ -179,6 +179,7 @@ export function scheduler() {
     try {
       console.log("Starting periodic scraping");
       await main();
+
       console.log("Periodic news scraping completed");
     } catch (error) {
       console.error("Error occurred in scraper:", error.message);
