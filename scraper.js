@@ -4,10 +4,22 @@ import createEmail from "./utils/createEmail.js";
 import fs from "fs";
 
 function dateToSeconds(dateString) {
-  const formattedDateString = dateString.replace(/(\d+)(st|nd|rd|th)/, "$1");
+  if (!dateString || typeof dateString !== "string") {
+    console.log("Invalid date input:", dateString);
+    return null;
+  }
+
+  const formattedDateString = dateString
+    .trim()
+    .replace(/(\d+)(st|nd|rd|th)/i, "$1");
   const date = new Date(formattedDateString);
-  const seconds = date.getTime() / 1000;
-  return seconds;
+
+  if (isNaN(date.getTime())) {
+    console.log("Failed to parse date:", dateString);
+    return null;
+  }
+
+  return Math.floor(date.getTime() / 1000);
 }
 
 async function scrapeNews() {
