@@ -241,7 +241,7 @@ async function createEmail(data) {
                               <a href="newsbit.amanchand.com.np" target="_blank">
                                 <img
                                   height="auto"
-                                  src="https://i.postimg.cc/7Z0MBvDd/NewsBit.png"
+                                  src="https://newsbit.amanchand.com.np/logo.png"
                                   style="
                                     border: 0;
                                     display: block;
