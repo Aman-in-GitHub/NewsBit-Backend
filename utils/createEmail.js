@@ -1,6 +1,7 @@
 import findEmails from "./findEmails.js";
 import { secondsToDate } from "./secondsToDate.js";
 import sendEmail from "./sendEmail.js";
+import { supabase } from "../db.js";
 
 async function createEmail(data) {
   console.log("Creating email");
